@@ -1,5 +1,5 @@
 const express = require('express');
-const getAllTalkers = require('./talker');
+const { getAllTalkers, getTalkerById } = require('./talker');
 
 const app = express();
 app.use(express.json());
@@ -25,4 +25,13 @@ app.get('/talker', async (req, res) => {
     console.error('bd não encontrada');
     res.status(400).json({ message: 'bd não encontrada' });
   }
+});
+
+app.get('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const talker = await getTalkerById(id);
+  if (!talker) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+  res.status(HTTP_OK_STATUS).json(talker);
 });
