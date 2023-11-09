@@ -1,6 +1,8 @@
 const express = require('express');
 const { getAllTalkers, getTalkerById } = require('./talker');
 const generateToken = require('./utils/authentication');
+const validateEmail = require('./middlewares/validateEmail');
+const validatePassword = require('./middlewares/validatePassword');
 
 const app = express();
 app.use(express.json());
@@ -37,7 +39,7 @@ app.get('/talker/:id', async (req, res) => {
   res.status(HTTP_OK_STATUS).json(talker);
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', validateEmail, validatePassword, (req, res) => {
   const token = generateToken();
   return res.status(HTTP_OK_STATUS).json({ token });
 });
