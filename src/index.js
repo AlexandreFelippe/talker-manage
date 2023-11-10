@@ -1,8 +1,14 @@
 const express = require('express');
-const { getAllTalkers, getTalkerById } = require('./talker');
+const { getAllTalkers, getTalkerById, writeFile } = require('./talker');
 const generateToken = require('./utils/authentication');
 const validateEmail = require('./middlewares/validateEmail');
 const validatePassword = require('./middlewares/validatePassword');
+const validateToken = require('./middlewares/validateToken');
+const validateName = require('./middlewares/validateName');
+const validateAge = require('./middlewares/validateAge');
+const validateTalk = require('./middlewares/validateTalk');
+const validateWatchedAt = require('./middlewares/validateWatchedAt');
+const validateRate = require('./middlewares/validateRate');
 
 const app = express();
 app.use(express.json());
@@ -43,3 +49,26 @@ app.post('/login', validateEmail, validatePassword, (req, res) => {
   const token = generateToken();
   return res.status(HTTP_OK_STATUS).json({ token });
 });
+
+app.post(
+  '/talker',
+  validateToken,
+  validateName,
+  validateAge,
+  validateTalk,
+  validateWatchedAt,
+  validateRate,
+  async (req, res) => {
+    try {
+      const talkerList = await getAllTalkers();
+      const newId = talkerList.length + 1;
+      const newTalker = { id: newId, ...req.body };
+      talkerList.push(newTalker);
+      await writeFile(talkerList);
+      res.status(201).json(newTalker);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+  },
+);
