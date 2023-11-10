@@ -72,3 +72,25 @@ app.post(
     }
   },
 );
+
+app.put(
+  '/talker/:id',
+  validateToken,
+  validateName,
+  validateAge,
+  validateTalk,
+  validateWatchedAt,
+  validateRate,
+  async (req, res) => {
+    const { id } = req.params;
+    const talkerList = await getAllTalkers();
+    const talkerIndex = talkerList.findIndex((talker) => talker.id === Number(id));
+    if (talkerIndex === -1) {
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    const newTalker = { id: Number(id), ...req.body };
+    talkerList[talkerIndex] = newTalker;
+    await writeFile(talkerList);
+    return res.status(HTTP_OK_STATUS).json(newTalker);
+  },
+);
